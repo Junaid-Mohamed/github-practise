@@ -1,27 +1,41 @@
-name: first-interaction
+name: Greet Contributor
 
 on:
   issues:
     types: [opened]
-  pull_request:
-    branches: [main]
+  pull_request_target:
     types: [opened]
 
 jobs:
-  check_for_first_interaction:
+  welcome:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/first-interaction@main
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set Welcome Message
+        id: set-welcome-message
+        run: |
+          if [ "${{ github.event_name }}" == "issues" ]; then
+            echo "::set-output name=message::### Hello @${{ github.actor }},\n\nThank you for raising the issue. Soon, the maintainers/owner will review it and offer feedback and suggestions. If you enjoy contributing to the project, please consider giving it a star ⭐."
+          elif [ "${{ github.event_name }}" == "pull_request_target" ]; then
+            echo "::set-output name=message::### Good work @${{ github.actor }},\n\nThank you for raising the PR. Soon, the maintainers/owner will review it and offer feedback and suggestions. If you enjoy contributing to the project, please consider giving it a star ⭐."
+          fi
+        shell: bash
+
+      - name: Post Welcome Message
+        uses: actions/github-script@v5
         with:
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          issue-message: |
-            Hello! Thank you for filing an issue.
+          script: |
+            const message = core.getInput('message');
+            const response = await github.issues.createComment({
+              issue_number: context.payload.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });
+            console.log(response.data.html_url)
 
-            If this is a bug report, please include relevant logs to help us debug the problem.
-          pr-message: |
-            Hello! Thank you for your contribution.
-
-            If you are fixing a bug, please reference the issue number in the description.
-
-            If you are implementing a feature request, please check with the maintainers that the feature will be accepted first.
+      - name: Get Comment URL
+        id: get-comment-url
+        run: echo "Comment URL: ${{ steps.post-welcome-message.outputs.comment_url }}"

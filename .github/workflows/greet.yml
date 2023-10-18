@@ -1,0 +1,17 @@
+name: Greet on Issue or PR
+
+on:
+  issues:
+    types:
+      - opened
+  pull_request:
+    types:
+      - opened
+
+jobs:
+  greet:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Greet User
+        run: echo "Hello, @$USER! Thank you for your contribution." # Modify this message as needed

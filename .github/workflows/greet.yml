@@ -38,4 +38,5 @@ jobs:
 
       - name: Get Comment URL
         id: get-comment-url
-        run: echo "Comment URL: ${{ steps.post-welcome-message.outputs.comment_url }}"
+        run: echo "Comment URL: ${{ steps.set-welcome-message.outputs.comment_url }}"
+

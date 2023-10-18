@@ -13,11 +13,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Install GitHub CLI
+        run: |
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
+          sudo apt-add-repository https://cli.github.com/packages
+          sudo apt update
+          sudo apt install gh
+          gh --version
+
       - name: Greet User
         run: |
           GREETING="Hello, @$USER! Thank you for your contribution." # Modify this message as needed
           echo "Greeting: $GREETING"
-          # You can use GitHub CLI to add a comment to the issue or PR
           gh issue comment ${{ github.event.issue.number }} --body "$GREETING"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

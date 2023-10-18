@@ -1,33 +1,34 @@
-name: Greet on Issue or PR
+name: Greet Contributor
 
 on:
   issues:
-    types:
-      - opened
-  pull_request:
-    types:
-      - opened
+    types: [opened]
+  pull_request_target:
+    types: [opened]
 
 jobs:
-  greet:
+  welcome:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Check out code
+      - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Install GitHub CLI
-        run: |
-          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
-          sudo apt-add-repository https://cli.github.com/packages
-          sudo apt update
-          sudo apt install gh
-          gh --version
+      - name: Post Welcome Message
+        id: welcome
+        uses: actions/github-script@v5
+        with:
+          script: |
+            if (github.event_name == 'issues') {
+              var message = "### Hello @" + github.actor + ",\n\nThank you for raising the issue. Soon, the maintainers/owner will review it and offer feedback and suggestions. If you enjoy contributing to the project, please consider giving it a star ⭐.";
+            } else if (github.event_name == 'pull_request_target') {
+              var message = "### Good work @" + github.actor + ",\n\nThank you for raising the PR. Soon, the maintainers/owner will review it and offer feedback and suggestions. If you enjoy contributing to the project, please consider giving it a star ⭐.";
+            }
 
-      - name: Greet User
-        run: |
-          GREETING="Hello, @$USER! Thank you for your contribution." # Modify this message as needed
-          echo "Greeting: $GREETING"
-          gh issue comment ${{ github.event.issue.number }} --body "$GREETING"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            var newComment = github.issues.createComment({
+              issue_number: github.event.issue.number,
+              owner: github.repository.owner,
+              repo: github.repository.name,
+              body: message
+            });
+
+            console.log(newComment.data.html_url);

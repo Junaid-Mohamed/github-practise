@@ -14,4 +14,10 @@ jobs:
 
     steps:
       - name: Greet User
-        run: echo "Hello, @$USER! Thank you for your contribution." # Modify this message as needed
+        run: |
+          GREETING="Hello, @$USER! Thank you for your contribution." # Modify this message as needed
+          echo "Greeting: $GREETING"
+          # You can use GitHub CLI to add a comment to the issue or PR
+          gh issue comment ${{ github.event.issue.number }} --body "$GREETING"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

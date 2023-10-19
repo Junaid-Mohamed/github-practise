@@ -1,3 +1,3 @@
-// This is a testing file.
+var userName = prompt("Please enter you name");
 
-//  I've modified this file with new details.
+console.log("Hi ", userName);

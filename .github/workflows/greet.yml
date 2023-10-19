@@ -17,7 +17,7 @@ jobs:
       - uses: EddieHubCommunity/gh-action-community/src/welcome@main
         if: ${{ github.event.sender.login != github.repository_owner }}
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           issue-message: |
             ### Hello @${{ github.actor }},
 

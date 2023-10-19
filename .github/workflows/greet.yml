@@ -1,6 +1,9 @@
 name: Greet Contributor
 
 on:
+  fork:
+  push:
+    branches: [main]
   issues:
     types: [opened]
   pull_request_target:
@@ -10,32 +13,17 @@ jobs:
   welcome:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Set Welcome Message
-        id: set-welcome-message
-        run: |
-          if [ "${{ github.event_name }}" == "issues" ]; then
-            echo "::set-output name=message::### Hello @${{ github.actor }},\n\nThank you for raising the issue. Soon, the maintainers/owner will review it and offer feedback and suggestions. If you enjoy contributing to the project, please consider giving it a star ⭐."
-          elif [ "${{ github.event_name }}" == "pull_request_target" ]; then
-            echo "::set-output name=message::### Good work @${{ github.actor }},\n\nThank you for raising the PR. Soon, the maintainers/owner will review it and offer feedback and suggestions. If you enjoy contributing to the project, please consider giving it a star ⭐."
-          fi
-        shell: bash
-
-      - name: Post Welcome Message
-        uses: actions/github-script@v5
+      - uses: actions/checkout@main
+        # - uses: EddieHubCommunity/gh-action-community/src/welcome@main
+        if: ${{ github.event.sender.login != github.repository_owner }}
         with:
-          script: |
-            const message = core.getInput('message');
-            const response = await github.issues.createComment({
-              issue_number: context.payload.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: message
-            });
-            console.log(response.data.html_url)
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          issue-message: |
+            ### Hello @${{ github.actor }},
 
-      # - name: Get Comment URL
-      #   id: get-comment-url
-      #   run: echo "Comment URL: ${{ steps.set-welcome-message.outputs.comment_url }}"
+            Thank you for raising the issue. Soon, the maintainers/owner will review it and offer feedback and suggestions. If you enjoy contributing to the project, please consider giving it a star ⭐.
+
+          pr-message: |
+            ### Good work @${{ github.actor }},
+
+            Thank you for raising the PR. Soon, the maintainers/owner will review it and offer feedback and suggestions. If you enjoy contributing to the project, please consider giving it a star ⭐.
